@@ -1,0 +1,6 @@
+{
+  "name": "Small Business Manager",
+  "description": "Complete small business manager with POS billing, sales, customer due ledger, inventory, profit & loss reports, and bilingual support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
