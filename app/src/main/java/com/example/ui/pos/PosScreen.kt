@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.model.Customer
 import com.example.data.model.LoyaltyReward
@@ -577,12 +578,17 @@ fun PosScreen(
         }
 
         Dialog(
-            onDismissRequest = { showCheckoutSheet = false }
+            onDismissRequest = { showCheckoutSheet = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
         ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.95f)
                     .fillMaxHeight(0.92f)
+                    .imePadding()
                     .testTag("checkout_sheet_dialog"),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
