@@ -150,8 +150,8 @@ fun DashboardScreen(
                             value = "$currency ${String.format(Locale.US, "%.0f", todaySalesTotal)}",
                             subtext = "${todaySales.size} ${if (lang == "bn") "টি অর্ডার" else "orders"}",
                             icon = Icons.Default.PointOfSale,
-                            backgroundColor = EmeraldContainerLight,
-                            iconColor = EmeraldPrimaryLight
+                            accentColor = EmeraldPrimaryLight,
+                            accentContainerColor = Color(0xFF004D40).copy(alpha = 0.25f)
                         )
                         KpiCard(
                             modifier = Modifier.weight(1f).testTag("kpi_today_profit"),
@@ -159,8 +159,8 @@ fun DashboardScreen(
                             value = "$currency ${String.format(Locale.US, "%.0f", todayNetProfit)}",
                             subtext = if (todayNetProfit >= 0) "Net Profit" else "Net Loss",
                             icon = Icons.Default.TrendingUp,
-                            backgroundColor = AmberContainerLight,
-                            iconColor = AmberSecondaryLight
+                            accentColor = AmberSecondaryLight,
+                            accentContainerColor = Color(0xFFD97706).copy(alpha = 0.22f)
                         )
                     }
 
@@ -174,8 +174,8 @@ fun DashboardScreen(
                             value = "$currency ${String.format(Locale.US, "%.0f", todayExpenseTotal)}",
                             subtext = "${todayExpenses.size} ${if (lang == "bn") "টি এন্ট্রি" else "entries"}",
                             icon = Icons.Default.ReceiptLong,
-                            backgroundColor = Color(0xFFFEE2E2),
-                            iconColor = ColorDue
+                            accentColor = Color(0xFFEF4444),
+                            accentContainerColor = Color(0xFFDC2626).copy(alpha = 0.22f)
                         )
                         KpiCard(
                             modifier = Modifier.weight(1f).testTag("kpi_total_due"),
@@ -183,8 +183,8 @@ fun DashboardScreen(
                             value = "$currency ${String.format(Locale.US, "%.0f", totalDues)}",
                             subtext = "${customers.count { it.totalDue > 0 }} ${if (lang == "bn") "জন বাকিদার" else "customers"}",
                             icon = Icons.Default.AccountBalanceWallet,
-                            backgroundColor = Color(0xFFE0E7FF),
-                            iconColor = ColorBank
+                            accentColor = Color(0xFF3B82F6),
+                            accentContainerColor = Color(0xFF2563EB).copy(alpha = 0.22f)
                         )
                     }
                 }
@@ -262,7 +262,10 @@ fun DashboardScreen(
                             .fillMaxWidth()
                             .clickable { viewModel.navigateTo(Screen.INVENTORY) }
                             .testTag("low_stock_banner"),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF3C7)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFD97706).copy(alpha = 0.16f)
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f)),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Row(
@@ -274,7 +277,7 @@ fun DashboardScreen(
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = null,
-                                tint = Color(0xFFD97706),
+                                tint = Color(0xFFFBBF24),
                                 modifier = Modifier.size(28.dp)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -282,18 +285,18 @@ fun DashboardScreen(
                                 Text(
                                     text = Strings.get("low_stock_alert", lang),
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF78350F)
+                                    color = Color(0xFFFDE68A)
                                 )
                                 Text(
                                     text = "${lowStockProducts.size} ${Strings.get("items_need_reorder", lang)}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color(0xFF92400E)
+                                    color = Color(0xFFFBBF24)
                                 )
                             }
                             Icon(
                                 imageVector = Icons.Default.ChevronRight,
                                 contentDescription = null,
-                                tint = Color(0xFFD97706)
+                                tint = Color(0xFFFBBF24)
                             )
                         }
                     }
@@ -437,13 +440,15 @@ fun KpiCard(
     value: String,
     subtext: String,
     icon: ImageVector,
-    backgroundColor: Color,
-    iconColor: Color
+    accentColor: Color,
+    accentContainerColor: Color
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        )
     ) {
         Column(
             modifier = Modifier.padding(14.dp)
@@ -456,29 +461,40 @@ fun KpiCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    maxLines = 1
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconColor,
-                    modifier = Modifier.size(20.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(accentContainerColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = accentColor,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             Text(
                 text = subtext,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f),
+                maxLines = 1
             )
         }
     }

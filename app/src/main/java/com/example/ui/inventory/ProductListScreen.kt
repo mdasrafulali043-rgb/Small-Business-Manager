@@ -156,7 +156,8 @@ fun ProductListScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(filteredProducts, key = { it.id }) { product ->
-                    val isLow = product.stockQuantity <= product.lowStockThreshold
+                    val isOutOfStock = product.stockQuantity <= 0
+                    val isLow = !isOutOfStock && product.stockQuantity <= product.lowStockThreshold
                     val profitMargin = product.sellPrice - product.buyPrice
 
                     Card(
@@ -165,9 +166,18 @@ fun ProductListScreen(
                             .testTag("product_card_${product.id}"),
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isLow) Color(0xFFFFFBEB) else MaterialTheme.colorScheme.surface
+                            containerColor = when {
+                                isOutOfStock -> Color(0xFFDC2626).copy(alpha = 0.12f)
+                                isLow -> Color(0xFFD97706).copy(alpha = 0.14f)
+                                else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f)
+                            }
                         ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        border = when {
+                            isOutOfStock -> androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.5f))
+                            isLow -> androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f))
+                            else -> null
+                        },
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             Row(
@@ -178,7 +188,8 @@ fun ProductListScreen(
                                     Text(
                                         text = if (lang == "bn" && product.banglaName.isNotEmpty()) product.banglaName else product.name,
                                         fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.bodyLarge
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = if (isOutOfStock) Color(0xFFEF4444) else MaterialTheme.colorScheme.onSurface
                                     )
                                     if (product.banglaName.isNotEmpty() && lang != "bn") {
                                         Text(
@@ -196,20 +207,28 @@ fun ProductListScreen(
                                     }
                                 }
 
-                                // Stock badge
+                                // Stock badge: Red for Out of Stock, Amber for Low Stock, Emerald for In Stock
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = if (product.stockQuantity <= 0) Color(0xFFFEE2E2)
-                                    else if (isLow) Color(0xFFFEF3C7)
-                                    else Color(0xFFD1FAE5)
+                                    color = when {
+                                        isOutOfStock -> Color(0xFFDC2626)
+                                        isLow -> Color(0xFFD97706).copy(alpha = 0.25f)
+                                        else -> Color(0xFF059669).copy(alpha = 0.22f)
+                                    }
                                 ) {
                                     Text(
-                                        text = "${product.stockQuantity} ${product.unit}",
+                                        text = if (isOutOfStock) {
+                                            if (lang == "bn") "স্টক শেষ (০)" else "Out of Stock (0)"
+                                        } else {
+                                            "${product.stockQuantity} ${product.unit}"
+                                        },
                                         fontWeight = FontWeight.Bold,
-                                        color = if (product.stockQuantity <= 0) Color(0xFF991B1B)
-                                        else if (isLow) Color(0xFF92400E)
-                                        else Color(0xFF065F46),
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        color = when {
+                                            isOutOfStock -> Color.White
+                                            isLow -> Color(0xFFFBBF24)
+                                            else -> Color(0xFF34D399)
+                                        },
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                                         fontSize = 12.sp
                                     )
                                 }
@@ -233,14 +252,14 @@ fun ProductListScreen(
                                         text = "${Strings.get("sell_price", lang)}: $currency ${product.sellPrice}",
                                         fontWeight = FontWeight.SemiBold,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = if (isOutOfStock) Color(0xFFEF4444) else MaterialTheme.colorScheme.primary
                                     )
                                 }
 
                                 Column(horizontalAlignment = Alignment.End) {
                                     Text(
                                         text = "${Strings.get("margin", lang)}: +$currency ${String.format(Locale.US, "%.1f", profitMargin)}",
-                                        color = Color(0xFF059669),
+                                        color = Color(0xFF10B981),
                                         fontWeight = FontWeight.Bold,
                                         style = MaterialTheme.typography.bodySmall
                                     )
